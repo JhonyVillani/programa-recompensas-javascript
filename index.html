@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="">
+
+    <title>Programa de Recompensas</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
+        integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
+    <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <h3>
+                    Tarefas Diárias
+                    <small class="text-muted">Programa de recompensas</small>
+                </h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <input id="mes_analisado" type="date" onchange="carregaTabela()" />
+                <label id="mes_nome"></label>
+            </div>
+        </div>
+
+        <div class="row" style="margin-top: 20px">
+            <div class="col-md-2">
+                <div>
+                    <p>notas</p>
+                    <button type="button" onclick="lerTarefas()" class="btn btn-primary" data-toggle="modal"
+                        data-target="#modalRegistro">Tarefas</button>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div id="conteudoJSON"></div>
+            </div>
+
+            <div class="col-md-2">
+                <div>
+                    <p>Recompensa</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- <div class="row">
+            <div class="col-md-12">
+                <a href=".\core\pessoas.xls">
+                    <button type="button" id="btnExcel" class="btn btn-primary">Exportar para o Excel</button>
+                </a>
+            </div> -->
+
+    </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="modalRegistro" tabindex="-1" role="dialog" aria-labelledby="modalRegistroLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalRegistroLabel">Tarefas</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <!--ini-->
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="">tarefa:</label>
+                                <input id="tarefa_nam0" type="text" class="form-control"
+                                    placeholder="digite o nome da atividade..." />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="">peso:</label>
+                                <input id="tarefa_val0" type="number" min="1" max="10" class="form-control"
+                                    placeholder="importância de 1 a 10" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input id="tarefa_nam1" type="text" class="form-control"
+                                    placeholder="digite o nome da atividade..." />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input id="tarefa_val1" type="number" min="1" max="10" class="form-control"
+                                    placeholder="importância de 1 a 10" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input id="tarefa_nam2" type="text" class="form-control"
+                                    placeholder="digite o nome da atividade..." />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input id="tarefa_val2" type="number" min="1" max="10" class="form-control"
+                                    placeholder="importância de 1 a 10" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input id="tarefa_nam3" type="text" class="form-control"
+                                    placeholder="digite o nome da atividade..." />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input id="tarefa_val3" type="number" min="1" max="10" class="form-control"
+                                    placeholder="importância de 1 a 10" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input id="tarefa_nam4" type="text" class="form-control"
+                                    placeholder="digite o nome da atividade..." />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input id="tarefa_val4" type="number" min="1" max="10" class="form-control"
+                                    placeholder="importância de 1 a 10" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input id="tarefa_nam5" type="text" class="form-control"
+                                    placeholder="digite o nome da atividade..." />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input id="tarefa_val5" type="number" min="1" max="10" class="form-control"
+                                    placeholder="importância de 1 a 10" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input id="tarefa_nam6" type="text" class="form-control"
+                                    placeholder="digite o nome da atividade..." />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input id="tarefa_val6" type="number" min="1" max="10" class="form-control"
+                                    placeholder="importância de 1 a 10" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input id="tarefa_nam7" type="text" class="form-control"
+                                    placeholder="digite o nome da atividade..." />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <input id="tarefa_val7" type="number" min="1" max="10" class="form-control"
+                                    placeholder="importância de 1 a 10" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--end-->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    <button id="btnSalvar" onclick="salvarTarefas();" class="btn btn-primary">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- /.container -->
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"
+        integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"
+        integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ"
+        crossorigin="anonymous"></script>
+    <script src="js/funcoes.js"></script>
+</body>
+
+</html>
