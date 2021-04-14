@@ -1,6 +1,9 @@
 // inicialização de variáveis
 {
-    var tarefas = []
+    var tarefas = [] //recebe o json da lista de tarefas
+    var dados = [] //recebe a lista de tarefas (até 8)
+    var historico = [] //recebe todas as tarefas do mês
+    var contTarefas = 0 //contador para auxílio no modal
     var diasSemana = ["DOM", "SEG", "TER", "QUA", "QUI", "SEX", "SAB"]
     var meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho",
         "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
@@ -35,10 +38,16 @@ class Tarefa {
     }
 }
 
+class Historico {
+    constructor(id, tarefa, status) {
+        this.id = id;
+        this.tarefa = tarefa;
+        this.status = status;
+    }
+}
+
 // preenche modal com a lista de tarefas
 function lerTarefas() {
-
-    dados = JSON.parse(tarefas)
 
     for (let i = 0; i < dados.length; i++) {
 
@@ -54,7 +63,7 @@ function salvarTarefas() {
 
     if (_confirm) {
 
-        dados = []
+        dados = [] // limpando campos
 
         for (let i = 0; i < 8; i++) {
 
@@ -64,13 +73,21 @@ function salvarTarefas() {
             // $(`input[id = "tarefa_val${i}"]`).val()
 
             // obtém valor de pontos por dia
-            if($(`input[id = "tarefa_val${i}"]`).val() !== ""){
+            if ($(`input[id = "tarefa_val${i}"]`).val() !== "") {
                 pontosDia += parseInt($(`input[id = "tarefa_val${i}"]`).val())
             }
         }
 
         // setando os valores no Storage
         localStorage.setItem("__tarefas__", JSON.stringify(dados))
+
+        dados = [] // limpando campos
+
+        // limpa cache do histórico
+        localStorage.removeItem("__historico__");
+
+        document.location.reload(true);
+
         alert("Redefinido com sucesso!")
     }
     $("#modalRegistro").modal("hide")
@@ -106,7 +123,12 @@ function carregaTabela() {
 
     let cont = 0; //conta as semanas
 
+    carregaHistorico(ultimoDiaTela)
+
     for (let i = 1; i <= ultimoDiaTela; i++) {
+
+        // eventos ao clicar no calendário
+        let eventosBtn = `<td data-toggle="modal" data-target="#modalTarefas" onclick="getTarefa(${i})">${i}</td>`
 
         if (cont == 0) {
             conteudo += "<tr>"
@@ -118,37 +140,43 @@ function carregaTabela() {
         if (i == 1) {
             switch (diaSemana) {
                 case 0:
-                    conteudo += `<td>${i}</td>`
+                    conteudo += eventosBtn
                     cont += 1
                     break;
                 case 1:
-                    conteudo += `<td></td><td>${i}</td>`
+                    conteudo += `<td></td>
+                    ${eventosBtn}`
                     cont += 2
                     break;
                 case 2:
-                    conteudo += `<td></td><td></td><td>${i}</td>`
+                    conteudo += `<td></td><td></td>
+                    ${eventosBtn}`
                     cont += 3
                     break;
                 case 3:
-                    conteudo += `<td></td><td></td><td></td><td>${i}</td>`
+                    conteudo += `<td></td><td></td><td></td>
+                    ${eventosBtn}`
                     cont += 4
                     break;
                 case 4:
-                    conteudo += `<td></td><td></td><td></td><td></td><td>${i}</td>`
+                    conteudo += `<td></td><td></td><td></td><td></td>
+                    ${eventosBtn}`
                     cont += 5
                     break;
                 case 5:
-                    conteudo += `<td></td><td></td><td></td><td></td><td></td><td>${i}</td>`
+                    conteudo += `<td></td><td></td><td></td><td></td><td></td>
+                    ${eventosBtn}`
                     cont += 6
                     break;
                 case 6:
-                    conteudo += `<td></td><td></td><td></td><td></td><td></td><td></td><td>${i}</td>`
+                    conteudo += `<td></td><td></td><td></td><td></td><td></td><td></td>
+                    ${eventosBtn}`
                     cont += 7
                     break;
             }
             continue;
         } else {
-            conteudo += `<td>${i}</td>` //onclick=''
+            conteudo += `${eventosBtn}`
         }
 
         cont++
@@ -157,6 +185,35 @@ function carregaTabela() {
     conteudo += "</table>";
 
     document.getElementById("conteudoJSON").innerHTML = conteudo;
+}
+
+function carregaHistorico(diasDoMes) {
+    // verifica se há histórico
+    historico = JSON.parse(localStorage.getItem("__historico__"))
+
+    // cadastra histórico
+    if (historico == null) {
+        if (tarefas == null) {
+            alert("Defina tarefas")
+            return false
+        }
+
+        historico = []
+
+        for (let i = 1; i <= diasDoMes; i++) {
+            for (let j = 0; j < dados.length; j++) {
+
+                if (dados[j].tarefa == "") {
+                    continue
+                } else {
+                    historico.push(new Historico(i, dados[j].tarefa, 0))
+                }
+            }
+        }
+
+        // armazenando o histórico
+        localStorage.setItem("__historico__", JSON.stringify(historico))
+    }
 }
 
 // obtém ultimo dia do mês / nome do mês vigente
@@ -180,6 +237,65 @@ function getUltimoDiaTela() {
     )
 }
 
+// exibe a lista de tarefas no modal
+function getTarefa(id) {
+
+    let html = "<ul>"
+
+    for (var value in historico) {
+
+        if (historico[value].id == id) {
+
+            // html += `<li>${historico[value].tarefa} <input id="task_id${contTarefas++}" name="task_nam" type="checkbox" value="1" /></li>`
+
+            if (historico[value].status == 0) {
+                html += `<li>${historico[value].tarefa} <input id="task_id${contTarefas++}" name="task_nam" type="checkbox" value="0" /></li>`
+            } else {
+                html += `<li>${historico[value].tarefa} <input id="task_id${contTarefas++}" name="task_nam" type="checkbox" checked value="1" /></li>`
+            }
+
+        }
+    }
+
+    html += "</ul>"
+
+    contTarefas = 0
+
+    document.getElementById("conteudoHistorico").innerHTML = html;
+    document.getElementById("btnSalvarTask").setAttribute('onClick', 'setTarefa(' + id + ')');
+}
+
+// grava as tarefas diárias no storage
+function setTarefa(id) {
+
+    let markedCheckbox = document.getElementsByName('task_nam');
+    // // exibe apenas os checkeds
+    // for (let checkbox of markedCheckbox) {
+    //     if (checkbox.checked) {
+    //         alert(checkbox.id + ' ')
+    //     }
+    // }
+
+    let checked = []
+    for (let i = 0; i < markedCheckbox.length; i++) {
+        if (markedCheckbox[i].checked) {
+            checked.push(1)
+        } else {
+            checked.push(0)
+        }
+    }
+
+    let cnt = 0
+    for (var value in historico) {
+
+        if (historico[value].id == id) {
+            historico[value].status = checked[cnt++]
+        }
+    }
+    localStorage.setItem("__historico__", JSON.stringify(historico))
+    $("#modalTarefas").modal("hide")
+}
+
 // busca dados no storage
 function lerStorage() {
     // Recebe dados do armazenamento local
@@ -191,7 +307,8 @@ function lerStorage() {
         document.location.reload(true);
     }
 
-    // dados = JSON.parse(localStorage.getItem("__dados__"))
+    dados = JSON.parse(tarefas)
+
 }
 
 window.onload = lerStorage(), carregaTabela(); // carrega a tabela junto com a página

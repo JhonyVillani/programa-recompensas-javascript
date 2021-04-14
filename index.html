@@ -68,7 +68,7 @@
     </div>
     </div>
 
-    <!-- Modal -->
+    <!-- Modal Cadastro-->
     <div class="modal fade" id="modalRegistro" tabindex="-1" role="dialog" aria-labelledby="modalRegistroLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -208,6 +208,33 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
                     <button id="btnSalvar" onclick="salvarTarefas();" class="btn btn-primary">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Tarefas -->
+    <div class="modal fade" id="modalTarefas" tabindex="-1" role="dialog" aria-labelledby="modalTarefasLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTarefasLabel">Tarefas a cumprir</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <!--ini-->
+                <div class="modal-body">
+
+                    <div id="conteudoHistorico"></div>
+
+                    <!--end-->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    <button id="btnSalvarTask" class="btn btn-primary">Salvar</button>
                 </div>
             </div>
         </div>
