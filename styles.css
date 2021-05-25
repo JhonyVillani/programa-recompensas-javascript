@@ -1,0 +1,60 @@
+#small {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+  border-radius: 25px;
+  cursor: zoom-in;
+}
+
+#lightbox .modal-content {
+  display: inline-block;
+  text-align: center;
+}
+
+#lightbox .close {
+  opacity: 1;
+  color: rgb(255, 255, 255);
+  background-color: rgb(25, 25, 25);
+  padding: 5px 8px;
+  border-radius: 30px;
+  border: 2px solid rgb(255, 255, 255);
+  position: absolute;
+  top: -15px;
+  right: -55px;
+
+  z-index: 1032;
+}
+
+#corTarefa {
+  color: green;
+  font-style: inherit;
+}
+
+table td:hover {
+  background-color: rgba(0, 112, 177, 0.582) !important;
+}
+
+table {
+  text-align: center;
+}
+
+.tableCellOk{
+  background-color: rgba(71, 223, 96, 0.432);
+  /* border-radius: 100px; */
+}
+
+.tableCellAgo{
+  background-color: rgba(157, 189, 189, 0.137);
+}
+
+.tableCellToday{
+  background-color: rgba(71, 223, 223, 0.582);
+}
+
+
+
+
+#btnWidth{
+  margin: 2px;
+  width: 110px;
+}

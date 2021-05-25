@@ -14,8 +14,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.min.css"
         integrity="sha384-PsH8R72JQ3SOdhVi3uxftmaW6Vc51MKb0q5P2rRUpPvrszuE4W1povHYgTpBfshb" crossorigin="anonymous">
     <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css">
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <link rel="stylesheet" href="styles.css">
 
 </head>
 
@@ -24,38 +24,61 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
-                <h3>
+                <h4>
                     Tarefas Diárias
                     <small class="text-muted">Programa de recompensas</small>
-                </h3>
+                </h4>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-md-4">
                 <input id="mes_analisado" type="date" onchange="carregaTabela()" />
-                <label id="mes_nome"></label>
+            </div>
+
+            <div class="col-md-4" style="text-align: center;">
+                <h4 id="mes_nome"></h4>
             </div>
         </div>
 
+
         <div class="row" style="margin-top: 20px">
             <div class="col-md-2">
-                <div>
-                    <p>notas</p>
-                    <button type="button" onclick="lerTarefas()" class="btn btn-primary" data-toggle="modal"
+                <div style="text-align: center;">
+                    <p>Pontuação</p>
+                    <div id="pontuacao"></div>
+
+                    <button id="btnWidth" type="button" onclick="lerTarefas()" class="btn btn-primary" data-toggle="modal"
                         data-target="#modalRegistro">Tarefas</button>
+                    <br><button id="btnWidth" type="button" class="btn btn-primary" data-toggle="modal"
+                        data-target="#modalRecompensa">Recompensa</button>
+                    <br><button id="btnWidth" type="button" class="btn btn-danger" onclick="limparStorage()">Reiniciar</button>
                 </div>
             </div>
 
             <div class="col-md-8">
+                <div id="progresso"></div>
                 <div id="conteudoJSON"></div>
             </div>
 
             <div class="col-md-2">
-                <div>
+                <div style="text-align: center;">
                     <p>Recompensa</p>
                 </div>
+                <div id="recompensaUrl"></div>
             </div>
 
+        </div>
+
+        <div id="lightbox" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <!-- <button type="button" class="close hidden" data-dismiss="modal" aria-hidden="true">×</button> -->
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <img src="" alt="" />
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- <div class="row">
@@ -233,13 +256,51 @@
                     <!--end-->
                 </div>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-light" onclick="btnMarcarTodas()">Marcar todas</button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
                     <button id="btnSalvarTask" class="btn btn-primary">Salvar</button>
                 </div>
             </div>
         </div>
     </div>
-    <!-- /.container -->
+
+    <!-- Modal de Recompensa -->
+    <div class="modal fade" id="modalRecompensa" tabindex="-1" role="dialog" aria-labelledby="modalTarefasLabel"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalRecompensaLabel">Recompensa</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <!--ini-->
+                <div class="modal-body">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="">Cole a URL da foto da recompensa:</label>
+                                <input id="recompensa_url" type="text" class="form-control"
+                                    placeholder="https://suarecompensa...." />
+                                <small class="form-text text-muted">
+                                    Adicione a URL da imagem.
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--end-->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                    <button class="btn btn-primary" onclick="setRecompensa()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Bootstrap core JavaScript
     ================================================== -->

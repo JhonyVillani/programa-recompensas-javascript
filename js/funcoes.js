@@ -1,5 +1,6 @@
 // inicialização de variáveis
 {
+    var url = ""
     var tarefas = [] //recebe o json da lista de tarefas
     var dados = [] //recebe a lista de tarefas (até 8)
     var historico = [] //recebe todas as tarefas do mês
@@ -9,22 +10,22 @@
         "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
     ]
 
-    var pontosDia = 0
+    var pontosDia = [0, 0] //tarefas, pontos
 
     var taskDefault = `
     [{
         "id": "1",
         "tarefa": "Cuidar do pet",
-        "peso": "5"
+        "peso": "10"
     },
     {
         "id": "2",
-        "tarefa": "Guardar os brinquedos",
-        "peso": "2"
+        "tarefa": "Organizar o quarto",
+        "peso": "5"
     },
     {
         "id": "3",
-        "tarefa": "Respeitar os pais",
+        "tarefa": "Organizar a cozinha",
         "peso": "7"
     }]
     `;
@@ -39,9 +40,10 @@ class Tarefa {
 }
 
 class Historico {
-    constructor(id, tarefa, status) {
+    constructor(id, tarefa, peso, status) {
         this.id = id;
         this.tarefa = tarefa;
+        this.peso = peso;
         this.status = status;
     }
 }
@@ -64,22 +66,25 @@ function salvarTarefas() {
     if (_confirm) {
 
         dados = [] // limpando campos
+        pontosDia = [0, 0]
 
         for (let i = 0; i < 8; i++) {
 
             dados.push(new Tarefa(i, $(`input[id = "tarefa_nam${i}"]`).val(), $(`input[id = "tarefa_val${i}"]`).val()))
 
-            // $(`input[id = "tarefa_nam${i}"]`).val()
-            // $(`input[id = "tarefa_val${i}"]`).val()
-
             // obtém valor de pontos por dia
             if ($(`input[id = "tarefa_val${i}"]`).val() !== "") {
-                pontosDia += parseInt($(`input[id = "tarefa_val${i}"]`).val())
+                // console.log(pontosDia)
+                // console.log(parseInt($(`input[id = "tarefa_val${i}"]`).val()))
+                pontosDia[0]++
+                pontosDia[1] += parseInt($(`input[id = "tarefa_val${i}"]`).val())
             }
+
         }
 
         // setando os valores no Storage
         localStorage.setItem("__tarefas__", JSON.stringify(dados))
+        localStorage.setItem("__pontos_dia__", JSON.stringify(pontosDia))
 
         dados = [] // limpando campos
 
@@ -96,6 +101,18 @@ function salvarTarefas() {
 // popula calendário
 function carregaTabela() {
 
+    // carrega a recompensa
+    if (url !== null) {
+
+        let html = `
+        <a href="#" class="thumbnail" data-toggle="modal" data-target="#lightbox"> 
+            <img id="small" async src="${url}" alt="Recompensa">
+        </a>
+        `;
+
+        document.getElementById("recompensaUrl").innerHTML = html;
+    }
+
     var conteudo = `<table class='table'><tr> 
         <th>${diasSemana[0]}</th>
         <th>${diasSemana[1]}</th>
@@ -107,9 +124,10 @@ function carregaTabela() {
         </tr>
         `;
 
-    if ($(mes_analisado).val() == "") {
+    if ($(mes_analisado).val() == "" || localStorage.getItem("__pontos_dia__") == null) {
 
-        document.getElementById('mes_nome').innerHTML = "Selecione um mês"
+        document.getElementById('mes_nome').innerHTML = "Defina as tarefas e depois selecione um mês"
+        // document.getElementById('mes_nome').innerHTML = localStorage.getItem("__pontos_dia__") == null
         return false
     } else {
         // Armazena a data ao rodar pela primeira vez
@@ -125,10 +143,36 @@ function carregaTabela() {
 
     carregaHistorico(ultimoDiaTela)
 
-    for (let i = 1; i <= ultimoDiaTela; i++) {
+    // carrega tabela de histórico      
+    let histTabResume = [];
+    historico.reduce(function (res, value) {
+        if (!res[value.id]) {
+            res[value.id] = {
+                id: value.id,
+                status: 0
+            };
+            histTabResume.push(res[value.id])
+        }
+        res[value.id].status += value.status;
+        return res;
+    }, {});
+
+    for (let i = 1, styleCell; i <= ultimoDiaTela; i++) {
+
+        if (histTabResume[i - 1].status == pontosDia[0]) {
+            styleCell = `class="tableCellOk"`
+        } else if (i < new Date().getDate()) { //marca os dias passados
+            styleCell = `class="tableCellAgo"`
+        } else if (i == new Date().getDate()) {
+            styleCell = `class="tableCellToday"`
+        } else {
+            styleCell = ""
+        }
 
         // eventos ao clicar no calendário
-        let eventosBtn = `<td data-toggle="modal" data-target="#modalTarefas" onclick="getTarefa(${i})">${i}</td>`
+        let eventosBtn = `<td data-toggle="modal" data-target="#modalTarefas" 
+            onclick="getTarefa(${i})" ${styleCell}>${i} 
+            <p id="corTarefa">${histTabResume[i - 1].status}/${pontosDia[0]}</p></td>`
 
         if (cont == 0) {
             conteudo += "<tr>"
@@ -185,6 +229,8 @@ function carregaTabela() {
     conteudo += "</table>";
 
     document.getElementById("conteudoJSON").innerHTML = conteudo;
+
+    carregaPontos()
 }
 
 function carregaHistorico(diasDoMes) {
@@ -206,7 +252,7 @@ function carregaHistorico(diasDoMes) {
                 if (dados[j].tarefa == "") {
                     continue
                 } else {
-                    historico.push(new Historico(i, dados[j].tarefa, 0))
+                    historico.push(new Historico(i, dados[j].tarefa, dados[j].peso, 0))
                 }
             }
         }
@@ -269,12 +315,6 @@ function getTarefa(id) {
 function setTarefa(id) {
 
     let markedCheckbox = document.getElementsByName('task_nam');
-    // // exibe apenas os checkeds
-    // for (let checkbox of markedCheckbox) {
-    //     if (checkbox.checked) {
-    //         alert(checkbox.id + ' ')
-    //     }
-    // }
 
     let checked = []
     for (let i = 0; i < markedCheckbox.length; i++) {
@@ -294,12 +334,27 @@ function setTarefa(id) {
     }
     localStorage.setItem("__historico__", JSON.stringify(historico))
     $("#modalTarefas").modal("hide")
+    carregaTabela()
+}
+
+// botão marcar todos checkbox's
+function btnMarcarTodas() {
+    let markedCheckbox = document.getElementsByName('task_nam');
+
+    for (let i = 0; i < markedCheckbox.length; i++) {
+        markedCheckbox[i].checked = true
+    }
 }
 
 // busca dados no storage
 function lerStorage() {
     // Recebe dados do armazenamento local
     $(mes_analisado).val(localStorage.getItem("__mes_analisado__"))
+
+    pontosDia = JSON.parse(localStorage.getItem("__pontos_dia__"));
+    if (pontosDia == null) {
+        pontosDia = [0, 0]
+    }
 
     tarefas = localStorage.getItem("__tarefas__");
     if (tarefas == null) {
@@ -309,6 +364,91 @@ function lerStorage() {
 
     dados = JSON.parse(tarefas)
 
+    url = JSON.parse(localStorage.getItem("__recompensa_url__"))
+
 }
+
+// exclui todos os dados da página
+function limparStorage() {
+
+    let _confirm = confirm("Deseja excluir todas as informações?")
+
+    if (_confirm) {
+
+        localStorage.clear();
+        document.location.reload(true);
+    }
+}
+
+// define a imagem da recompensa
+function setRecompensa() {
+
+    url = $(recompensa_url).val();
+
+    localStorage.setItem("__recompensa_url__", JSON.stringify(url))
+    $("#modalRecompensa").modal("hide")
+
+    document.location.reload(true);
+
+}
+
+// busca pontuação atual
+function carregaPontos() {
+
+    let pontos = 0
+    let pontosTotais = getUltimoDiaTela() * pontosDia[1]
+
+    for (let i = 0; i < historico.length; i++) {
+        if (historico[i].status == 1) {
+            pontos += parseInt(historico[i].peso)
+        }
+    }
+
+    let html = `
+        <p>${pontos} - \(${Math.round(pontos/pontosTotais*100)}%)</p>
+    `;
+
+    document.getElementById("pontuacao").innerHTML = html;
+
+    // barra
+    html = `
+        <div class="progress">
+            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" 
+            aria-valuenow="${Math.round(pontos/pontosTotais*100)}" aria-valuemin="0" aria-valuemax="100" 
+            style="width: ${Math.round(pontos/pontosTotais*100)}%"></div>
+        </div>
+    `;
+
+    document.getElementById("progresso").innerHTML = html
+}
+
+// lightbox
+$(document).ready(function () {
+    var $lightbox = $('#lightbox');
+
+    $('[data-target="#lightbox"]').on('click', function (event) {
+        var $img = $(this).find('img'),
+            src = $img.attr('src'),
+            alt = $img.attr('alt'),
+            css = {
+                'maxWidth': $(window).width() - 100,
+                'maxHeight': $(window).height() - 100
+            };
+
+        $lightbox.find('.close').addClass('hidden');
+        $lightbox.find('img').attr('src', src);
+        $lightbox.find('img').attr('alt', alt);
+        $lightbox.find('img').css(css);
+    });
+
+    $lightbox.on('shown.bs.modal', function (e) {
+        var $img = $lightbox.find('img');
+
+        $lightbox.find('.modal-dialog').css({
+            'width': $img.width()
+        });
+        $lightbox.find('.close').removeClass('hidden');
+    });
+});
 
 window.onload = lerStorage(), carregaTabela(); // carrega a tabela junto com a página
